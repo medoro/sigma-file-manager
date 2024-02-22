@@ -4,95 +4,109 @@ Copyright © 2021 - present Aleksey Hoffman. All rights reserved.
 -->
 
 <script setup lang="ts">
-import {Icon} from '@iconify/vue';
+import {Primitive} from 'radix-vue';
 import {computed, useSlots} from 'vue';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
+
 
 interface Props {
-  type?: 'icon' | 'button';
-  icon?: string;
-  iconSize?: string;
-  iconClass?: string | object;
-  buttonClass?: string | object;
+  type?: 'button' | 'icon';
+  variant?: 'tonal';
   tooltip?: string;
   tooltipShortcuts?: Array<{ value: string; description: string }>;
-  iconProps?: Record<string, unknown>;
-  isDisabled?: boolean;
-  value?: string;
-  size?: 'x-small' | 'small' | 'default' | 'large' | 'x-large' | number;
+  disabled?: boolean;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 interface Emits {
-  (event: 'click', value: MouseEvent): void;
+  (event: 'click'): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tooltipShortcuts: () => [],
-  iconProps: () => ({}),
-  type: 'icon',
-  icon: '',
-  iconSize: '20px',
-  iconClass: '',
-  buttonClass: '',
+  type: 'button',
+  variant: 'tonal',
   tooltip: '',
-  value: '',
-  isDisabled: false,
-  size: 'small'
+  tooltipShortcuts: () => [],
+  disabled: false,
+  size: 'sm'
 });
 
 const emit = defineEmits<Emits>();
 
 const slots = useSlots();
 
-const isTooltipEnabled = computed(() => props.tooltip || slots.tooltip);
+const classMods = computed(() => ({
+  'ui-button--tonal': props.variant === 'tonal'
+}));
 
-function onClickHandler (event: MouseEvent) {
-  emit('click', event);
-}
+const isTooltipProvided = computed(() => (props.tooltip && props.tooltip.length !== 0) || Boolean(slots.tooltip));
 </script>
 
 <template>
-  <VTooltip
-    location="bottom"
-    :disabled="!isTooltipEnabled"
-  >
-    <template #activator="{ props: tooltipProps }">
-      <VBtn
-        :value="props.value"
-        :icon="!!props.icon && props.type === 'icon'"
-        :size="props.size"
-        :class="props.buttonClass"
-        :disabled="props.isDisabled"
-        variant="tonal"
-        color="transparent"
-        rounded="xs"
-        v-bind="tooltipProps"
-        @click="onClickHandler"
-      >
-        <Icon
-          v-if="!!props.icon && props.type === 'icon'"
-          :icon="props.icon"
-          :class="props.iconClass"
-          v-bind="props.iconProps"
-          :style="`font-size: ${props.iconSize}`"
+  <TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger as-child>
+        <span tabindex="0">
+          <Primitive
+            class="ui-button"
+            :class="classMods"
+            :disabled="disabled"
+            as="button"
+            @click="emit('click')"
+          >
+            <slot />
+          </Primitive>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent v-if="isTooltipProvided">
+        <div v-if="props.tooltip">
+          {{ props.tooltip }}
+        </div>
+        <slot
+          v-if="slots.tooltip"
+          name="tooltip"
         />
-        <slot />
-      </VBtn>
-    </template>
-    <div v-if="props.tooltip">
-      {{ props.tooltip }}
-    </div>
-    <slot
-      v-if="slots.tooltip"
-      name="tooltip"
-    />
-    <div v-if="props.tooltipShortcuts">
-      <div
-        v-for="(shortcut, index) in props.tooltipShortcuts"
-        :key="index"
-      >
-        <span class="code-inline">{{ shortcut.value }}</span>
-        - {{ shortcut.description }}
-      </div>
-    </div>
-  </VTooltip>
+      </TooltipContent>
+    </Tooltip>
+  </TooltipProvider>
 </template>
+
+<style>
+.ui-button {
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: var(--rounded-sm);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  outline: 2px solid;
+  outline-color: rgb(var(--light-value) / 0%);
+  outline-offset: 2px;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ui-button:focus-visible {
+  outline-color: rgb(var(--light-value) / 100%);
+}
+
+.ui-button:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.ui-button--tonal {
+  background-color: rgb(var(--light-value) / 5%);
+  color: rgb(var(--light-value) / 50%);
+}
+</style>

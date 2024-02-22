@@ -1,6 +1,10 @@
 @layer base {
   :root {
     --radius: 0.75rem;
+    --rounded-sm: 4px;
+    --rounded: 8px;
+    --rounded-lg: 12px;
+    --rounded-xl: 16px;
     --nav-sidebar-width: 48px;
     --window-toolbar-height: 32px;
     --action-toolbar-height: 42px;
@@ -78,6 +82,7 @@
     --bg-color: rgb(var(--bg-color-value) / 100%);
     --bg-color-darker-1-value: 29 31 37;
     --bg-color-darker-1: rgb(var(--bg-color-darker-1-value) / 100%);
+    --bg-secondary: 128 128 128;
     --key-color-value: 14 130 150;
     --key-color: rgb(var(--key-color-value) / 100%);
     --route-content-bg-color: var(--bg-color-darker-1);
