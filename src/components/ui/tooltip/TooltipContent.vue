@@ -9,7 +9,7 @@ import {type HTMLAttributes} from 'vue';
 import type {TooltipContentEmits, TooltipContentProps} from 'radix-vue';
 
 const props = withDefaults(defineProps<TooltipContentProps & { class?: HTMLAttributes['class'] }>(), {
-  sideOffset: 4,
+  sideOffset: 8,
   side: 'bottom'
 });
 const emit = defineEmits<TooltipContentEmits>();
@@ -18,14 +18,16 @@ const forwarded = useForwardPropsEmits(props, emit);
 </script>
 
 <template>
-  <TooltipPortal>
-    <TooltipContent
-      v-bind="{ ...forwarded, ...$attrs }"
-      :class="['ui-tooltip-content', props.class]"
-      :side="side"
-    >
-      <slot />
-    </TooltipContent>
+  <TooltipPortal force-mount>
+    <Transition :name="`tooltip-${side}`">
+      <TooltipContent
+        v-bind="{ ...forwarded, ...$attrs }"
+        :class="['ui-tooltip-content', props.class]"
+        :side="side"
+      >
+        <slot />
+      </TooltipContent>
+    </Transition>
   </TooltipPortal>
 </template>
 
@@ -33,47 +35,30 @@ const forwarded = useForwardPropsEmits(props, emit);
 .ui-tooltip-content {
   z-index: 5;
   min-height: 24px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   border-radius: var(--rounded);
-  animation-duration: 0.6s;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   backdrop-filter: blur(4px);
-  background: white;
-  background-color: rgb(var(--light-value) / 30%);
-  color: black;
+  background-color: hsl(from hsl(var(--background)) h s calc(l + 2%) / 80%);
+  box-shadow: 0 2px 48px hsl(var(--dark) / 24%);
+  color: var(--grey-500);
   cursor: default;
-  transition: all 0.5s ease;
 }
 
-.ui-tooltip-content[data-side="top"] {
-  animation-name: slide-up;
+.tooltip-bottom-leave-active {
+  transition:
+    opacity 0.1s ease,
+    translate 0.1s ease;
+  }
+
+.tooltip-bottom-enter-active {
+  transition:
+    opacity 0.1s ease,
+    translate 0.1s ease;
 }
 
-.ui-tooltip-content[data-side="bottom"] {
-  animation-name: slide-down;
-}
-
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-20px) scale(0.5);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.5);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.tooltip-bottom-enter-from,
+.tooltip-bottom-leave-to {
+  opacity: 0;
+  translate: 0 -20px;
 }
 </style>

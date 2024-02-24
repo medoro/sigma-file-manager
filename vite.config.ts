@@ -1,5 +1,6 @@
 import {fileURLToPath, URL} from 'node:url';
 import vuePlugin from '@vitejs/plugin-vue';
+import autoprefixer from 'autoprefixer';
 import {defineConfig} from 'vite';
 import stylelintPlugin from 'vite-plugin-stylelint';
 
@@ -28,5 +29,12 @@ export default defineConfig({
   plugins: [
     vuePlugin(),
     stylelintPlugin({fix: true})
-  ]
+  ],
+  css: {
+    postcss: {
+      plugins: [
+        autoprefixer
+      ]
+    }
+  }
 });

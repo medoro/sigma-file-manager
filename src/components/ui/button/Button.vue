@@ -7,12 +7,11 @@ Copyright © 2021 - present Aleksey Hoffman. All rights reserved.
 import {Primitive} from 'radix-vue';
 import {computed, useSlots} from 'vue';
 import {
-  Tooltip,
+  TooltipRoot,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-
 
 interface Props {
   type?: 'button' | 'icon';
@@ -48,36 +47,56 @@ const isTooltipProvided = computed(() => (props.tooltip && props.tooltip.length 
 </script>
 
 <template>
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger as-child>
-        <span tabindex="0">
-          <Primitive
-            class="ui-button"
-            :class="classMods"
-            :disabled="disabled"
-            as="button"
-            @click="emit('click')"
+  <Transition name="fade-in">
+    <TooltipProvider>
+      <TooltipRoot>
+        <TooltipTrigger as-child>
+          <span
+            class="ui-button-wrapper"
+            v-bind="$attrs"
+            tabindex="0"
           >
-            <slot />
-          </Primitive>
-        </span>
-      </TooltipTrigger>
-      <TooltipContent v-if="isTooltipProvided">
-        <div v-if="props.tooltip">
-          {{ props.tooltip }}
-        </div>
-        <slot
-          v-if="slots.tooltip"
-          name="tooltip"
-        />
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
+            <Primitive
+              class="ui-button"
+              :class="classMods"
+              :disabled="disabled"
+              tabindex="-1"
+              as="button"
+              @click="emit('click')"
+            >
+              <slot />
+            </Primitive>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent v-if="isTooltipProvided">
+          <div v-if="props.tooltip">
+            {{ props.tooltip }}
+          </div>
+          <slot
+            v-if="slots.tooltip"
+            name="tooltip"
+          />
+        </TooltipContent>
+      </TooltipRoot>
+    </TooltipProvider>
+  </Transition>
 </template>
 
 <style>
+.ui-button-wrapper {
+  display: inline-flex;
+  border-radius: var(--rounded-sm);
+  outline: 2px solid;
+  outline-color: hsl(var(--light) / 0%);
+  outline-offset: 2px;
+}
+
+.ui-button-wrapper:focus-visible {
+  outline-color: hsl(var(--primary) / 50%);
+}
+
 .ui-button {
+  position: relative;
   display: inline-flex;
   height: 28px;
   align-items: center;
@@ -87,17 +106,10 @@ const isTooltipProvided = computed(() => (props.tooltip && props.tooltip.length 
   cursor: pointer;
   font-size: 12px;
   font-weight: 500;
-  outline: 2px solid;
-  outline-color: rgb(var(--light-value) / 0%);
-  outline-offset: 2px;
   text-transform: uppercase;
   transition: all 0.3s ease;
   user-select: none;
   white-space: nowrap;
-}
-
-.ui-button:focus-visible {
-  outline-color: rgb(var(--light-value) / 100%);
 }
 
 .ui-button:disabled {
@@ -106,7 +118,11 @@ const isTooltipProvided = computed(() => (props.tooltip && props.tooltip.length 
 }
 
 .ui-button--tonal {
-  background-color: rgb(var(--light-value) / 5%);
-  color: rgb(var(--light-value) / 50%);
+  background-color: hsl(var(--light) / 5%);
+  color: hsl(var(--light) / 50%);
+
+  &:hover {
+    background-color: hsl(var(--light) / 10%);
+  }
 }
 </style>

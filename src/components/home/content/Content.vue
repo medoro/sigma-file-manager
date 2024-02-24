@@ -11,7 +11,10 @@ import {Button} from '@/components/ui/button';
 <template>
   <main class="home-page-content">
     <Title />
-    <Button tooltip="Test tooltip prop">
+    <Button
+      tooltip="Test tooltip prop"
+      disabled
+    >
       Project page
     </Button>
     <Button>
@@ -19,6 +22,9 @@ import {Button} from '@/components/ui/button';
       <template #tooltip>
         Test tooltip slot content
       </template>
+    </Button>
+    <Button>
+      Project page
     </Button>
   </main>
 </template>
